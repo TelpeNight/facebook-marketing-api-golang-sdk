@@ -233,6 +233,8 @@ type PromotedObject struct {
 	PixelRule          string `json:"pixel_rule,omitempty"`
 	CustomEventType    string `json:"custom_event_type,omitempty"`
 	CustomConversionID string `json:"custom_conversion_id,omitempty"`
+	ApplicationID      string `json:"application_id,omitempty"`
+	ObjectStoreURL     string `json:"object_store_url,omitempty"`
 }
 
 // Targeting contains all the targeting information of an adset.

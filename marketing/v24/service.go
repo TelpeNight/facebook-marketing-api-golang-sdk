@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/go-kit/log"
 	"github.com/justwatch/facebook-marketing-api-golang-sdk/fb"
 )
 
@@ -32,13 +31,8 @@ type Service struct {
 }
 
 // New initializes a new Service and all the Services contained.
-func New(l log.Logger, accessToken, appSecret string) (*Service, error) {
-	c := fb.NewClient(l, accessToken, appSecret)
-	err := c.GetJSON(context.Background(), fb.NewRoute(Version, "/me").String(), &struct{}{})
-	if err != nil {
-		return nil, err
-	}
-
+func New(accessToken string, opts ...fb.ClientOpt) *Service {
+	c := fb.NewClient(accessToken, opts...)
 	return &Service{
 		Client:            c,
 		AdAccounts:        &AdAccountService{c},
@@ -49,14 +43,18 @@ func New(l log.Logger, accessToken, appSecret string) (*Service, error) {
 		Campaigns:         &CampaignService{c},
 		CustomConversions: &CustomConversionService{c},
 		Events:            &EventService{c},
-		Insights:          newInsightsService(l, c),
+		Insights:          newInsightsService(c.GetLogger(), c),
 		Interests:         &InterestService{c},
 		Images:            &ImageService{c},
 		Pages:             &PageService{c},
 		Posts:             &PostService{c, fb.NewStatsContainer()},
 		Search:            &SearchService{c},
 		Videos:            &VideoService{c},
-	}, nil
+	}
+}
+
+func (s *Service) Ping(ctx context.Context) error {
+	return s.GetJSON(ctx, fb.NewRoute(Version, "/me").String(), &struct{}{})
 }
 
 // GetMetadata returns the metadata of a graph API object.

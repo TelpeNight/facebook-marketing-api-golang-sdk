@@ -34,7 +34,9 @@ func (t *tokenTransport) RoundTrip(r *http.Request) (*http.Response, error) {
 	}
 	q := u.Query()
 	q.Set("access_token", t.getAccessToken(ctx))
-	q.Set("appsecret_proof", t.getAppSecretProof(ctx))
+	if appSecretProof := t.getAppSecretProof(ctx); appSecretProof != "" {
+		q.Set("appsecret_proof", appSecretProof)
+	}
 	u.RawQuery = q.Encode()
 
 	rNew := *r
@@ -66,6 +68,9 @@ type tokenKey struct{}
 var tk tokenKey
 
 func (t *tokenTransport) getAppSecretProof(ctx context.Context) string {
+	if t.clientKey == "" {
+		return ""
+	}
 	h := hmac.New(sha256.New, []byte(t.clientKey))
 	h.Write([]byte(t.getAccessToken(ctx)))
 

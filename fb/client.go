@@ -50,15 +50,42 @@ type Client struct {
 }
 
 // NewClient returns a http.Client containing a special transport with injects the version, token, and clientkey.
-func NewClient(l log.Logger, token, clientKey string) *Client {
-	if l == nil {
-		l = log.NewNopLogger()
+func NewClient(token string, opts ...ClientOpt) *Client {
+	o := &clientOpts{}
+	for _, opt := range opts {
+		opt(o)
+	}
+	if o.l == nil {
+		o.l = log.NewNopLogger()
 	}
 
 	return &Client{
-		l:      l,
-		Client: &http.Client{Transport: newTokenTransport(token, clientKey, newRetryTransport(newLogAppUsageTransport(l, nil)))},
+		l:      o.l,
+		Client: &http.Client{Transport: newTokenTransport(token, o.clientKey, newRetryTransport(newLogAppUsageTransport(o.l, nil)))},
 	}
+}
+
+type clientOpts struct {
+	l         log.Logger
+	clientKey string
+}
+
+type ClientOpt func(o *clientOpts)
+
+func WithLogger(l log.Logger) ClientOpt {
+	return func(o *clientOpts) {
+		o.l = l
+	}
+}
+
+func WithClientKey(key string) ClientOpt {
+	return func(o *clientOpts) {
+		o.clientKey = key
+	}
+}
+
+func (c *Client) GetLogger() log.Logger {
+	return c.l
 }
 
 func (c *Client) handleResponse(resp *http.Response, res interface{}, req []byte) error {
