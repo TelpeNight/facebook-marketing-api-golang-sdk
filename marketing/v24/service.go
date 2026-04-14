@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/justwatch/facebook-marketing-api-golang-sdk/fb"
+	"github.com/TelpeNight/facebook-marketing-api-golang-sdk/fb"
 )
 
 // Version of the graph API being used.

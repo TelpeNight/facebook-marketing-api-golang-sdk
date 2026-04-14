@@ -8,7 +8,7 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
-	"github.com/justwatch/facebook-marketing-api-golang-sdk/fb"
+	"github.com/TelpeNight/facebook-marketing-api-golang-sdk/fb"
 )
 
 const (

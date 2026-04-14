@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	v24 "github.com/justwatch/facebook-marketing-api-golang-sdk/marketing/v24"
+	v24 "github.com/TelpeNight/facebook-marketing-api-golang-sdk/marketing/v24"
 )
 
 func toStrings(status []v24.EffectiveStatus) []string {
