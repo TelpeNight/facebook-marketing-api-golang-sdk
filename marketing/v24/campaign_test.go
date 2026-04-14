@@ -31,8 +31,8 @@ func TestListByEffectiveStatus_buildsEffectiveStatusParam(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	got := u.Query().Get("effective_status")
-	want := `["ACTIVE","PAUSED"]`
+	got := u.Query().Get("filtering")
+	want := `[{"field":"effective_status","operator":"IN","value":["ACTIVE","PAUSED"]}]`
 	if got != want {
 		t.Fatalf("effective_status mismatch\n got: %s\nwant: %s", got, want)
 	}
@@ -53,9 +53,9 @@ func TestList_usesDefaultStatuses(t *testing.T) {
 	call := cs.List("123")
 
 	u, _ := url.Parse(call.RouteBuilder.String())
-	got := u.Query().Get("effective_status")
+	got := u.Query().Get("filtering")
 
-	exp := `["` + strings.Join(toStrings(v24.DefaultEffectiveStatuses), `","`) + `"]` // see helper below
+	exp := `[{"field":"effective_status","operator":"IN","value":["` + strings.Join(toStrings(v24.DefaultEffectiveStatuses), `","`) + `"]}]` // see helper below
 	if got != exp {
 		t.Fatalf("defaults mismatch\n got: %s\nwant: %s", got, exp)
 	}
