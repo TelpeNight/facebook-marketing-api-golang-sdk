@@ -178,14 +178,14 @@ type Adset struct {
 	Campaign                     *Campaign              `json:"campaign,omitempty"`
 	CampaignID                   string                 `json:"campaign_id,omitempty"`
 	ConfiguredStatus             string                 `json:"configured_status,omitempty"`
-	CreatedTime                  fb.Time                `json:"created_time,omitempty"`
+	CreatedTime                  fb.Time                `json:"created_time,omitzero"`
 	DailyBudget                  float64                `json:"daily_budget,omitempty,string"`
 	DailyMinSpendTarget          uint64                 `json:"daily_min_spend_target,omitempty,string"`
 	DailySpendCap                uint64                 `json:"daily_spend_cap,omitempty,string"`
 	DestinationType              string                 `json:"destination_type,omitempty"`
 	DeliveryEstimate             *DeliveryEstimate      `json:"delivery_estimate,omitempty"`
 	EffectiveStatus              string                 `json:"effective_status,omitempty"`
-	EndTime                      fb.Time                `json:"end_time,omitempty"`
+	EndTime                      fb.Time                `json:"end_time,omitzero"`
 	FrequencyControlSpecs        []FrequencyControlSpec `json:"frequency_control_specs,omitempty"`
 	ID                           string                 `json:"id,omitempty"`
 	LifetimeBudget               float64                `json:"lifetime_budget,omitempty,string"`
@@ -198,11 +198,11 @@ type Adset struct {
 	PlacementSoftOptOut          *PlacementSoftOptOut   `json:"placement_soft_opt_out,omitempty"`
 	PromotedObject               *PromotedObject        `json:"promoted_object,omitempty"`
 	RecurringBudgetSemantics     bool                   `json:"recurring_budget_semantics,omitempty"`
-	StartTime                    fb.Time                `json:"start_time,omitempty"`
+	StartTime                    fb.Time                `json:"start_time,omitzero"`
 	Status                       string                 `json:"status,omitempty"`
 	Targeting                    *Targeting             `json:"targeting,omitempty"`
-	UpdatedTime                  fb.Time                `json:"updated_time,omitempty"`
-	TargetingOptimizationTypes   map[string]int32       `json:"targeting_optimization_types,omitempty"`
+	UpdatedTime                  fb.Time                `json:"updated_time,omitzero"`
+	TargetingOptimizationTypes   []json.RawMessage      `json:"targeting_optimization_types,omitempty"`
 	DSABeneficiary               string                 `json:"dsa_beneficiary,omitempty"`
 	DSAPayor                     string                 `json:"dsa_payor,omitempty"`
 	InstagramUserID              string                 `json:"instagram_user_id,omitempty"`

@@ -34,3 +34,7 @@ func (t *Time) UnmarshalJSON(data []byte) error {
 func (t Time) MarshalJSON() ([]byte, error) {
 	return json.Marshal(time.Time(t).Format(tsFormat))
 }
+
+func (t Time) IsZero() bool {
+	return time.Time(t).IsZero()
+}

@@ -224,15 +224,15 @@ type Campaign struct {
 	DailyBudget                 uint64              `json:"daily_budget,omitempty,string"`
 	EffectiveStatus             string              `json:"effective_status,omitempty"`
 	ID                          string              `json:"id,omitempty"`
-	IsAdsetBudgetSharingEnabled bool                `json:"is_adset_budget_sharing_enabled"`
+	IsAdsetBudgetSharingEnabled *bool               `json:"is_adset_budget_sharing_enabled,omitempty"`
 	LifeTimeBudget              uint64              `json:"lifetime_budget,omitempty,string"`
 	Name                        string              `json:"name,omitempty"`
 	Objective                   string              `json:"objective,omitempty"`
 	SpendCap                    uint64              `json:"spend_cap,omitempty,string"`
-	StartTime                   fb.Time             `json:"start_time,omitempty"`
+	StartTime                   fb.Time             `json:"start_time,omitzero"`
 	Status                      string              `json:"status,omitempty"`
-	StopTime                    fb.Time             `json:"stop_time,omitempty"`
-	UpdatedTime                 fb.Time             `json:"updated_time,omitempty"`
+	StopTime                    fb.Time             `json:"stop_time,omitzero"`
+	UpdatedTime                 fb.Time             `json:"updated_time,omitzero"`
 	SpecialAdCategories         []string            `json:"special_ad_categories,omitempty"`
 }
 
