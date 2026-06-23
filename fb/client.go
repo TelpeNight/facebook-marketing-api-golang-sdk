@@ -91,9 +91,13 @@ func (c *Client) GetLogger() log.Logger {
 func (c *Client) handleResponse(resp *http.Response, res interface{}, req []byte) error {
 	defer resp.Body.Close()
 
-	buf := &bytes.Buffer{}
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
 	ec := &ErrorContainer{}
-	err := json.NewDecoder(io.TeeReader(resp.Body, buf)).Decode(ec)
+	err = json.Unmarshal(body, ec)
 	if err != nil {
 		return err
 	} else if err = ec.GetError(); err != nil {
@@ -106,7 +110,7 @@ func (c *Client) handleResponse(resp *http.Response, res interface{}, req []byte
 		return fmt.Errorf("unexpected status %s", resp.Status)
 	}
 
-	return json.Unmarshal(buf.Bytes(), res)
+	return json.Unmarshal(body, res)
 }
 
 func (c *Client) handleError(err error, res *http.Response, req []byte) {
@@ -216,20 +220,15 @@ func (c *Client) ReadList(ctx context.Context, u string, res chan<- json.RawMess
 
 // PostJSON encodes req as JSON into a buffer, sends this as a POST body to the url and parses the response as JSON into res.
 func (c *Client) PostJSON(ctx context.Context, url string, req, res interface{}) error {
+	var b []byte
 	var r io.Reader
+	var err error
 	if req != nil {
-		b := &bytes.Buffer{}
-		err := json.NewEncoder(b).Encode(req)
+		b, err = json.Marshal(req)
 		if err != nil {
 			return err
 		}
-		r = b
-	}
-
-	var debugBuf *bytes.Buffer
-	if r != nil {
-		debugBuf = &bytes.Buffer{}
-		r = io.TeeReader(r, debugBuf)
+		r = bytes.NewReader(b)
 	}
 
 	request, err := http.NewRequest(http.MethodPost, url, r)
@@ -243,20 +242,13 @@ func (c *Client) PostJSON(ctx context.Context, url string, req, res interface{})
 		return err
 	}
 
-	var b []byte
-	if debugBuf != nil {
-		b = debugBuf.Bytes()
-	}
-
 	return c.handleResponse(resp, res, b)
 }
 
 // Send a Post request encoded as a form.
 func (c *Client) PostForm(ctx context.Context, endpointUrl string, formBody url.Values, res interface{}) error {
-	var encodedBody io.Reader = strings.NewReader(formBody.Encode())
-	var debugBuf *bytes.Buffer = &bytes.Buffer{}
-	encodedBody = io.TeeReader(encodedBody, debugBuf)
-	apiRequest, err := http.NewRequest(http.MethodPost, endpointUrl, encodedBody)
+	encodedBody := formBody.Encode()
+	apiRequest, err := http.NewRequest(http.MethodPost, endpointUrl, strings.NewReader(encodedBody))
 	if err != nil {
 		return fmt.Errorf("cannot prepare request request: %w", err)
 	}
@@ -267,25 +259,20 @@ func (c *Client) PostForm(ctx context.Context, endpointUrl string, formBody url.
 		return err
 	}
 
-	return c.handleResponse(resp, res, debugBuf.Bytes())
+	return c.handleResponse(resp, res, []byte(encodedBody))
 }
 
 // DeleteJSON sends a DELETE request to url with a body and marshals the response to res.
 func (c *Client) DeleteJSON(ctx context.Context, url string, req, res interface{}) error {
+	var b []byte
 	var r io.Reader
+	var err error
 	if req != nil {
-		b := &bytes.Buffer{}
-		err := json.NewEncoder(b).Encode(req)
+		b, err = json.Marshal(req)
 		if err != nil {
 			return err
 		}
-		r = b
-	}
-
-	var debugBuf *bytes.Buffer
-	if r != nil {
-		debugBuf = &bytes.Buffer{}
-		r = io.TeeReader(r, debugBuf)
+		r = bytes.NewReader(b)
 	}
 
 	httpReq, err := http.NewRequest(http.MethodDelete, url, r)
@@ -297,11 +284,6 @@ func (c *Client) DeleteJSON(ctx context.Context, url string, req, res interface{
 	resp, err := c.Client.Do(httpReq.WithContext(ctx))
 	if err != nil {
 		return err
-	}
-
-	var b []byte
-	if debugBuf != nil {
-		b = debugBuf.Bytes()
 	}
 
 	return c.handleResponse(resp, res, b)
