@@ -1,6 +1,6 @@
 module github.com/TelpeNight/facebook-marketing-api-golang-sdk
 
-go 1.24
+go 1.25.0
 
 require (
 	github.com/PuerkitoBio/goquery v1.5.0
@@ -16,5 +16,5 @@ require (
 	github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1 // indirect
 	github.com/jtolds/gls v4.20.0+incompatible // indirect
 	github.com/smartystreets/assertions v0.0.0-20180927180507-b2de0cb4f26d // indirect
-	golang.org/x/net v0.0.0-20181114220301-adae6a3d119a // indirect
+	golang.org/x/net v0.56.0 // indirect
 )
