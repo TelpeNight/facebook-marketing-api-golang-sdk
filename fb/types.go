@@ -2,6 +2,7 @@ package fb
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -45,7 +46,8 @@ type Error struct {
 
 // IsNotFound returns whether the error is a fb error with specific code and subcode.
 func IsNotFound(err error) bool {
-	e, ok := err.(*Error)
+	var e *Error
+	ok := errors.As(err, &e)
 	if !ok {
 		return false
 	}
@@ -58,7 +60,8 @@ func IsNotFound(err error) bool {
 
 // IsReduceData returns whether the error is a Facebook error asking to reduce the amount of data requested.
 func IsReduceData(err error) bool {
-	e, ok := err.(*Error)
+	var e *Error
+	ok := errors.As(err, &e)
 	if !ok {
 		return false
 	}

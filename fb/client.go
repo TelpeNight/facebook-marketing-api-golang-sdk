@@ -58,16 +58,30 @@ func NewClient(token string, opts ...ClientOpt) *Client {
 	if o.l == nil {
 		o.l = log.NewNopLogger()
 	}
+	var transport http.RoundTripper
+	if o.logAppUsage {
+		transport = newLogAppUsageTransport(o.l, transport)
+	}
+	if !o.noRetry {
+		transport = newRetryTransport(o.retryInitialInterval, o.retryMaxElapsedTime, transport)
+	}
+	{
+		transport = newTokenTransport(token, o.clientKey, transport)
+	}
 
 	return &Client{
 		l:      o.l,
-		Client: &http.Client{Transport: newTokenTransport(token, o.clientKey, newRetryTransport(newLogAppUsageTransport(o.l, nil)))},
+		Client: &http.Client{Transport: transport},
 	}
 }
 
 type clientOpts struct {
-	l         log.Logger
-	clientKey string
+	l                    log.Logger
+	clientKey            string
+	logAppUsage          bool
+	noRetry              bool
+	retryInitialInterval time.Duration
+	retryMaxElapsedTime  time.Duration
 }
 
 type ClientOpt func(o *clientOpts)
@@ -81,6 +95,26 @@ func WithLogger(l log.Logger) ClientOpt {
 func WithClientKey(key string) ClientOpt {
 	return func(o *clientOpts) {
 		o.clientKey = key
+	}
+}
+
+func WithLogAppUsage() ClientOpt {
+	return func(o *clientOpts) {
+		o.logAppUsage = true
+	}
+}
+
+func WithNoRetry() ClientOpt {
+	return func(o *clientOpts) {
+		o.noRetry = true
+	}
+}
+
+func WithRetry(initialInterval, maxElapsedTime time.Duration) ClientOpt {
+	return func(o *clientOpts) {
+		o.noRetry = false
+		o.retryInitialInterval = initialInterval
+		o.retryMaxElapsedTime = maxElapsedTime
 	}
 }
 
@@ -127,7 +161,8 @@ func (c *Client) handleError(err error, res *http.Response, req []byte) {
 		return
 	}
 
-	_ = level.Warn(c.l).Log("msg", "received facebook error", "url", res.Request.URL.String(), "status", res.StatusCode,
+	_ = level.Warn(c.l).Log(
+		"msg", "received facebook error", "url", res.Request.URL.String(), "status", res.StatusCode,
 		"message", e.Message,
 		"type", e.Type,
 		"code", e.Code,
